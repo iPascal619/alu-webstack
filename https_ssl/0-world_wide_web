@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Function to display subdomain information
 display_info() {
-    domain=$1
-    subdomain=$2
+    local domain="$1"
+    local subdomain="$2"
 
     if [ -z "$subdomain" ]; then
         subdomains=("www" "lb-01" "web-01" "web-02")
@@ -11,14 +11,27 @@ display_info() {
     fi
 
     for sub in "${subdomains[@]}"; do
-        record=$(dig $sub.$domain | awk '/ANSWER SECTION/ {getline; print}')
-        echo "The subdomain $sub is a $record record and points to $domain"
+        record=$(dig "$sub.$domain" | awk '/ANSWER SECTION/ {getline; print}')
+        destination=$(dig "$sub.$domain" | awk '/ANSWER SECTION/ {getline; getline; print $NF}')
+        
+        if [[ "$sub" == "www" ]]; then
+            echo "Your subdomain www points to your lb-01 server IP"
+        elif [[ "$sub" == "lb-01" ]]; then
+            echo "Your subdomain lb-01 points to your lb-01 server IP"
+        elif [[ "$sub" == "web-01" ]]; then
+            echo "Your subdomain web-01 points to your web-01 server IP"
+        elif [[ "$sub" == "web-02" ]]; then
+            echo "Your subdomain web-02 points to your web-02 server IP"
+        else
+            echo "The subdomain $sub is a $record record and points to $destination"
+        fi
     done
 }
 
 # Accept domain and subdomain as arguments
-domain=$1
-subdomain=$2
+domain="$1"
+subdomain="$2"
 
 # Call the display_info function
-display_info $domain $subdomain
+display_info "$domain" "$subdomain"
+
