@@ -12,7 +12,7 @@ display_info() {
 
     for sub in "${subdomains[@]}"; do
         record=$(dig "$sub.$domain" | awk '/ANSWER SECTION/ {getline; print}')
-        destination=$(dig "$sub.$domain" | awk '/ANSWER SECTION/ {getline; getline; print $NF}')
+        destination=$(dig "$sub.$domain" | awk '/IN A/ {print $NF}')
         
         if [[ "$sub" == "www" ]]; then
             echo "Your subdomain www points to your lb-01 server IP"
